@@ -122,7 +122,7 @@ namespace Xinics.Interop.PhpLang
         {
             this.pos = 0;
             return deserialize(str);
-        }//Deserialize(string str)
+        }
 
         private object deserialize(string str)
         {
