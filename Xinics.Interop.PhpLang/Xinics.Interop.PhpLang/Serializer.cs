@@ -19,6 +19,7 @@ namespace Xinics.Interop.PhpLang
         // i = int
         // d = double
         // a = array (hashtable)
+        // O = stdClass (hashtable)
 
         private Dictionary<Hashtable, bool> seenHashtables; //for serialize (to infinte prevent loops)
         private Dictionary<ArrayList, bool> seenArrayLists; //for serialize (to infinte prevent loops) lol
@@ -208,9 +209,44 @@ namespace Xinics.Interop.PhpLang
                         return alRet;
                     else
                         return htRet;
+                case 'O':
+                    // if type is stdClass, returns Hashtable
+                    start = str.IndexOf(":", this.pos) + 1;
+                    end = str.IndexOf(":", start);
+                    stLen = str.Substring(start, end - start);
+                    length = Int32.Parse(stLen);
+
+                    // type must be "stdClass"
+                    string stObjRet = str.Substring(end + 2, length);
+                    if (stObjRet != "stdClass") return new object();
+
+                    this.pos += 1 + stLen.Length + 1 + 2 + length;
+
+                    // get num of props
+                    start = str.IndexOf(":", this.pos) + 1;
+                    end = str.IndexOf(":", start);
+                    stLen = str.Substring(start, end - start);
+                    length = Int32.Parse(stLen);
+
+                    Hashtable htObjRet = new Hashtable(length);
+                    this.pos += 4 + stLen.Length; //:Len:{
+                    for (int i = 0; i < length; i++)
+                    {
+                        //read key
+                        object key = deserialize(str);
+                        //read value
+                        object val = deserialize(str);
+
+                        htObjRet[key] = val;
+                    }
+                    this.pos++; //skip the }
+                    if (this.pos < str.Length && str[this.pos] == ';')//skipping our old extra array semi-colon bug (er... php's weirdness)
+                        this.pos++;
+                    
+                    return htObjRet;
                 default:
                     return "";
             }//switch
-        }//unserialzie(object)	
+        }//deserialize(object)	
     }//class Serializer
 }
