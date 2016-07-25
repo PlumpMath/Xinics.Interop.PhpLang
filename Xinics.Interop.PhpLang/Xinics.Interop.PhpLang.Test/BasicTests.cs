@@ -50,5 +50,41 @@ namespace Xinics.Interop.PhpLang.Test
 
             Assert.AreEqual("false", objDeserialized["data_media"]);
         }
+
+        [TestCase]
+        public void DeserializeNestedObjectTest()
+        {
+            string strSerialized = "O:8:\"stdClass\":1:{s:8:\"rsz_info\";O:8:\"stdClass\":4:{s:12:\"content_type\";s:3:\"rsz\";s:12:\"project_type\";s:5:\"rapid\";s:20:\"need_story_rendering\";b:0;s:20:\"recorded_story_count\";i:3;}}";
+
+            Serializer srlzr = new Serializer();
+            object deserialized = srlzr.Deserialize(strSerialized);
+            Hashtable objDeserialized = deserialized as Hashtable;
+
+            Assert.NotNull(objDeserialized);
+
+            Hashtable rszInfo = objDeserialized["rsz_info"] as Hashtable;
+
+            Assert.NotNull(rszInfo);
+            Assert.AreEqual("rsz", rszInfo["content_type"]);
+            Assert.AreEqual("rapid", rszInfo["project_type"]);
+            Assert.AreEqual(false, rszInfo["need_story_rendering"]);
+            Assert.AreEqual(3, rszInfo["recorded_story_count"]);
+
+            strSerialized = "O:8:\"stdClass\":2:{s:8:\"rsz_info\";O:8:\"stdClass\":4:{s:12:\"content_type\";s:3:\"rsz\";s:12:\"project_type\";s:4:\"rich\";s:20:\"need_story_rendering\";b:1;s:20:\"recorded_story_count\";i:1;}s:10:\"data_media\";s:5:\"false\";}";
+
+            deserialized = srlzr.Deserialize(strSerialized);
+            objDeserialized = deserialized as Hashtable;
+
+            Assert.NotNull(objDeserialized);
+            Assert.AreEqual("false", objDeserialized["data_media"]);
+
+            rszInfo = objDeserialized["rsz_info"] as Hashtable;
+
+            Assert.NotNull(rszInfo);
+            Assert.AreEqual("rsz", rszInfo["content_type"]);
+            Assert.AreEqual("rich", rszInfo["project_type"]);
+            Assert.AreEqual(true, rszInfo["need_story_rendering"]);
+            Assert.AreEqual(1, rszInfo["recorded_story_count"]);
+        }
     }
 }

@@ -228,6 +228,7 @@ namespace Xinics.Interop.PhpLang
                     stLen = str.Substring(start, end - start);
                     length = Int32.Parse(stLen);
 
+                    // same code from array deserialization
                     Hashtable htObjRet = new Hashtable(length);
                     this.pos += 4 + stLen.Length; //:Len:{
                     for (int i = 0; i < length; i++)
